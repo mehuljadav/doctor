@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const app = require('./app');
 
-process.on('uncaughtException', (err) => {
-   console.log('UNCAUGHT EXCEPTION! Shutting down...');
-   console.log(err.name, err.message);
-   process.exit(1);
-});
+// process.on('uncaughtException', (err) => {
+//    console.log('UNCAUGHT EXCEPTION! Shutting down...');
+//    console.log(err.name, err.message);
+//    process.exit(1);
+// });
 
 const MONGO_URI = process.env.MONGO_URI;
 console.log(MONGO_URI);
@@ -28,8 +28,8 @@ app.listen(PORT, () => {
    console.log('Server:', PORT);
 });
 
-process.on('unhandledRejection', (err) => {
-   console.log('UNCAUGHT EXCEPTION! Shutting down...');
-   console.log(err.name, err.message);
-   process.exit(1);
-});
+// process.on('unhandledRejection', (err) => {
+//    console.log('UNCAUGHT EXCEPTION! Shutting down...');
+//    console.log(err.name, err.message);
+//    process.exit(1);
+// });
