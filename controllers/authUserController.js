@@ -66,10 +66,7 @@ exports.protect = catchAsync(async (req, res, next) => {
    }
    if (!token) {
       return next(
-         new AppError(
-            'You are not logged in! Please log book Appointment with Doctor!',
-            401
-         )
+         new AppError('You are not logged in! Please login Appointment with Doctor!', 401)
       );
    }
 
@@ -77,7 +74,7 @@ exports.protect = catchAsync(async (req, res, next) => {
    if (!decoded) {
       return next(new AppError('User Authentication failed, please login again!', 401));
    }
-   console.log(decoded);
+
    const decodedUser = await User.findById({ _id: decoded.id });
    if (!decodedUser) {
       return next(
@@ -88,6 +85,18 @@ exports.protect = catchAsync(async (req, res, next) => {
    res.locals.user = decodedUser;
    next();
 });
+
+exports.logout = async (req, res) => {
+   res.cookie('jwt', null, {
+      expires: new Date(Date.now()),
+      httpOnly: true,
+   });
+
+   res.status(200).json({
+      status: 'success',
+      message: 'logout successfull',
+   });
+};
 
 exports.restrictTo = (...roles) => {
    return (req, res, next) => {

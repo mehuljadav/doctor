@@ -1,16 +1,16 @@
 const express = require('express');
 const router = express.Router();
 
-const authController = require('../controllers/authController');
+const authUserController = require('../controllers/authUserController');
 const appointmentController = require('../controllers/appointmentController');
 
-router.route('/').post(authController.protect, appointmentController.bookAppo);
+router.route('/').post(authUserController.protect, appointmentController.bookAppointment);
 
 router
    .route('/')
    .delete(
-      authController.protect,
-      authController.restrictTo('admin'),
+      authUserController.protect,
+      authUserController.restrictTo('admin'),
       appointmentController.deleteAppo
    );
 

@@ -46,6 +46,18 @@ const userSchema = new mongoose.Schema({
          message: 'Passwords are not the same!',
       },
    },
+   appointments: [
+      {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: 'Appointment',
+      },
+   ],
+   illnessHistory: [
+      {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: 'illnessHistory',
+      },
+   ],
 
    active: {
       type: Boolean,
