@@ -14,6 +14,10 @@ const userSchema = new mongoose.Schema({
       lowercase: true,
       validate: [validator.isEmail, 'Please provide a valid email!'],
    },
+   phone: {
+      type: Number,
+      required: [true, 'Please provide phone number!'],
+   },
    gender: {
       type: String,
       enum: ['male', 'female', 'other'],

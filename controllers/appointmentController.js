@@ -3,6 +3,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const Doctor = require('../models/doctorModel');
 const User = require('../models/userModel');
+const APIFeatures = require('../utils/APIFeatures');
 
 exports.bookAppointment = catchAsync(async (req, res, next) => {
    const doctor = await Doctor.findById({ _id: req.body.doctorId });
@@ -43,21 +44,90 @@ exports.bookAppointment = catchAsync(async (req, res, next) => {
       data: newAppointment,
    });
 });
-
 exports.getAppointments = catchAsync(async (req, res, next) => {
-   const appointments = await Appointment.find();
+   console.log(req.query);
+   const feature = new APIFeatures(Appointment.find(), req.query).populate().filter();
+   const appointments = await feature.query;
    if (!appointments) {
       return next(new AppError('Appointments not found!', 404));
    }
    res.status(200).json({
       status: 'success',
+      length: appointments.length,
       data: { appointments },
    });
 });
 
-exports.deleteAppo = catchAsync(async (req, res, next) => {
+exports.getAppointmentsAgr = catchAsync(async (req, res, next) => {
+   const appointments = await Appointment.find({ 'userId.name': 'mehul' });
+   if (!appointments) {
+      return next(new AppError('Appointments not found!', 404));
+   }
    res.status(200).json({
-      status: success,
-      message: 'Deleted successfully',
+      status: 'success',
+      length: appointments.length,
+      data: { appointments },
+   });
+});
+
+exports.getAppointment = catchAsync(async (req, res, next) => {
+   const appointment = await Appointment.findById({ _id: req.params.id });
+   if (!appointment) {
+      return next(new AppError('Appointment not found!', 404));
+   }
+   res.status(200).json({
+      status: 'success',
+      data: { appointment },
+   });
+});
+
+exports.cancelAppointment = catchAsync(async (req, res, next) => {
+   console.log('you are here', req.params.id);
+   const appointment = await Appointment.findByIdAndUpdate(
+      { _id: req.params.id },
+      { $set: { status: 'canceled' } },
+      { new: true }
+   );
+   if (!appointment) {
+      return next(
+         new AppError('Error while canceling you Appointment, please try later!', 401)
+      );
+   }
+   res.status(200).json({
+      status: 'success',
+      message: 'your Appointment canceled!',
+   });
+});
+
+exports.updateAppointment = catchAsync(async (req, res, next) => {
+   req.body.updatedAt = Date.now();
+   const appointment = await Appointment.findByIdAndUpdate(
+      { _id: req.params.id },
+      req.body,
+      {
+         new: true,
+         runValidators: true,
+      }
+   );
+   if (!appointment) {
+      return next(
+         new AppError('Error while updating you Appointment, please try later!', 401)
+      );
+   }
+
+   res.status(200).json({
+      status: 'success',
+      data: { appointment },
+   });
+});
+
+exports.deleteAppointment = catchAsync(async (req, res, next) => {
+   const appointment = await Appointment.findByIdAndDelete({ _id: req.params.id });
+   if (!appointment) {
+      return next(new AppError('Appointment not found!', 404));
+   }
+   res.status(200).json({
+      status: 'success',
+      data: { appointment },
    });
 });
