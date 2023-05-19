@@ -9,7 +9,7 @@ const createToken = (doctor, statusCode, req, res) => {
       expiresIn: process.env.JWT_SECRET_EXPIRES_IN,
    });
 
-   res.cookie('jwt', token, {
+   res.cookie('drjwt', token, {
       expires: new Date(
          Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
       ),
@@ -42,9 +42,9 @@ exports.signup = catchAsync(async (req, res, next) => {
          city: req.body.address.city,
          pincode: req.body.address.pincode,
       },
-
       degrees: req.body.degrees,
       experience: req.body.experience,
+      specialty: req.body.specialty,
       timeAvailability: req.body.timeAvailability,
    });
    console.log(newDoctor);
@@ -76,7 +76,7 @@ exports.protect = catchAsync(async (req, res, next) => {
    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
    } else {
-      token = req.cookies.jwt;
+      token = req.cookies.drjwt;
    }
    if (!token) {
       return next(
@@ -101,7 +101,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 
 exports.logout = async (req, res) => {
-   res.cookie('jwt', null, {
+   res.cookie('drjwt', null, {
       expires: new Date(Date.now()),
       httpOnly: true,
    });

@@ -93,7 +93,6 @@ exports.getAppointment = catchAsync(async (req, res, next) => {
 });
 
 exports.cancelAppointment = catchAsync(async (req, res, next) => {
-   console.log('you are here', req.params.id);
    const appointment = await Appointment.findByIdAndUpdate(
       { _id: req.params.id },
       { $set: { status: 'canceled' } },

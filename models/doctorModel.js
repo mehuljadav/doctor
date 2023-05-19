@@ -84,6 +84,24 @@ const doctorSchema = new mongoose.Schema(
             required: [true, 'Doctor degree(s) is required!'],
          },
       ],
+      specialty: [
+         {
+            type: String,
+            required: [true, 'Doctor must have a specialty!'],
+            enum: [
+               'Cardiology',
+               'Dermatology',
+               'Endocrinology',
+               'Gastroenterology',
+               'Neurology',
+               'Oncology',
+               'Pediatrics',
+               'Psychiatry',
+               'Surgery',
+               'Urology',
+            ],
+         },
+      ],
       experience: {
          type: String,
          enum: [
@@ -131,8 +149,8 @@ const doctorSchema = new mongoose.Schema(
    }
 );
 
-doctorSchema.pre(/^find/, function (next) {
-   this.find({ active: { $eq: true } });
+doctorSchema.pre(['findById'], function (next) {
+   this.find({ active: true });
    next();
 });
 
