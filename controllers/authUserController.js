@@ -27,9 +27,11 @@ const createToken = (user, statusCode, req, res) => {
 
 exports.signup = catchAsync(async (req, res, next) => {
    const newUser = await User.create({
-      name: req.body.name,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
       email: req.body.email,
       gender: req.body.gender,
+      age: req.body.age,
       phone: req.body.phone,
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,

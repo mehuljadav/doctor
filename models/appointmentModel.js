@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { login } = require('../controllers/authUserController');
 
 const appointmentSchema = new mongoose.Schema(
    {
@@ -8,13 +7,18 @@ const appointmentSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
          },
-         name: String,
+         fullName: String,
+         gender: String,
          age: Number,
-         phone: Number,
       },
-      doctorId: {
-         type: mongoose.Schema.Types.ObjectId,
-         ref: 'Doctor',
+      doctor: {
+         doctorId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Doctor',
+         },
+         FirstName: String,
+         gender: String,
+         age: Number,
       },
       date: {
          type: Date,
@@ -30,6 +34,10 @@ const appointmentSchema = new mongoose.Schema(
          type: String,
          enum: ['Morning', 'Evening'],
          required: [true, 'DayShift Morning or Evening is required!'],
+      },
+      resion: {
+         type: String,
+         required: [true, 'Illness description is required!'],
       },
       status: {
          type: String,
@@ -56,7 +64,7 @@ appointmentSchema.pre(/^findById/, function (next) {
 });
 
 // virtual populate user and doctor when find query runs
-appointmentSchema.pre(/^find/, function (next) {
+appointmentSchema.pre(/^findById/, function (next) {
    this.populate({ path: 'userId', select: '_id name email phone gender' }).populate({
       path: 'doctorId',
       select: '_id firstName lastName email',
@@ -64,4 +72,5 @@ appointmentSchema.pre(/^find/, function (next) {
 
    next();
 });
+
 module.exports = mongoose.model('Appointment', appointmentSchema);

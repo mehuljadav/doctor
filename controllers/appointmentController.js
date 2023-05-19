@@ -6,20 +6,44 @@ const User = require('../models/userModel');
 const APIFeatures = require('../utils/APIFeatures');
 
 exports.bookAppointment = catchAsync(async (req, res, next) => {
+   const bookedAppo = await Appointment.findOne({
+      $and: [
+         { 'doctor.doctorId': req.body.doctorId },
+         { 'user.userId': req.user._id },
+         { status: { $ne: 'completed' } },
+      ],
+   });
+   console.log('Booked AppointMent is : ', bookedAppo);
+   if (bookedAppo) {
+      return next(new AppError('Appointment already booked!', 401));
+   }
+
    const doctor = await Doctor.findById({ _id: req.body.doctorId });
-   console.log(doctor);
    if (!doctor) {
       return next(new AppError('Doctor not found!', 404));
    }
 
    const newAppointment = await Appointment.create({
-      userId: req.user._id,
-      doctorId: req.body.doctorId,
+      user: {
+         userId: req.user._id,
+         fullName: `${req.user.firstName} ${req.user.lastName}`,
+         age: req.user.age,
+         gender: req.user.gender,
+      },
+      doctor: {
+         doctorId: doctor._id,
+         fullName: `${doctor.firstName} ${doctor.lastName}`,
+         age: doctor.age,
+         gender: doctor.gender,
+      },
       date: req.body.date,
       dayShift: req.body.dayShift,
+      resion: req.body.resion,
    });
    if (!newAppointment) {
-      return next(new AppError('Cant create Appointment, Please try again later!', 401));
+      return next(
+         new AppError('Cant create new Appointment, Please try again later!', 401)
+      );
    }
 
    await User.findByIdAndUpdate(
@@ -31,14 +55,13 @@ exports.bookAppointment = catchAsync(async (req, res, next) => {
    );
 
    await Doctor.findByIdAndUpdate(
-      { _id: newAppointment.doctorId },
+      { _id: newAppointment.doctor.doctorId },
       { $push: { appointments: newAppointment._id } },
       {
          new: true,
       }
    );
 
-   console.log(newAppointment._id);
    res.status(200).json({
       status: 'success',
       data: newAppointment,
@@ -46,20 +69,8 @@ exports.bookAppointment = catchAsync(async (req, res, next) => {
 });
 exports.getAppointments = catchAsync(async (req, res, next) => {
    console.log(req.query);
-   const feature = new APIFeatures(Appointment.find(), req.query).populate().filter();
+   const feature = new APIFeatures(Appointment.find(), req.query).filter();
    const appointments = await feature.query;
-   if (!appointments) {
-      return next(new AppError('Appointments not found!', 404));
-   }
-   res.status(200).json({
-      status: 'success',
-      length: appointments.length,
-      data: { appointments },
-   });
-});
-
-exports.getAppointmentsAgr = catchAsync(async (req, res, next) => {
-   const appointments = await Appointment.find({ 'userId.name': 'mehul' });
    if (!appointments) {
       return next(new AppError('Appointments not found!', 404));
    }

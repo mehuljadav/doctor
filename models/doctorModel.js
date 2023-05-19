@@ -131,6 +131,11 @@ const doctorSchema = new mongoose.Schema(
    }
 );
 
+doctorSchema.pre(/^find/, function (next) {
+   this.find({ active: { $eq: true } });
+   next();
+});
+
 doctorSchema.virtual('fullName').get(function () {
    return `${this.firstName} ${this.lastName}`;
 });
